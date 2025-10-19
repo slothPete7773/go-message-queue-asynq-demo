@@ -1,0 +1,12 @@
+services:
+  redis:
+    image: redis:6.0.7
+    container_name: my-redis-instance
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  redis_data:
