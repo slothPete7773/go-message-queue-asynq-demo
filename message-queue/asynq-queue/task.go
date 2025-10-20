@@ -1,4 +1,4 @@
-package task
+package asynqque
 
 import (
 	"encoding/json"
@@ -28,6 +28,7 @@ func NewWelcomeEmailTask(id int) *asynq.Task {
 
 	return asynq.NewTask(TypeWelcomeEmail, bPayload)
 }
+
 func NewReminderEmailTask(id int, ts time.Time) *asynq.Task {
 	payload := ReminderEmail{
 		UserId: id,

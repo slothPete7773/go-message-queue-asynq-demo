@@ -1,8 +1,11 @@
 package service
 
 import (
+	asynqque "asynq-demo/message-queue/asynq-queue"
 	"asynq-demo/repository"
 	"errors"
+	"fmt"
+	"log"
 	"regexp"
 )
 
@@ -10,9 +13,6 @@ import (
 type UserService interface {
 	CreateUser(name, email string, age int) (*repository.User, error)
 	GetUserByID(id int) (*repository.User, error)
-	GetAllUsers() ([]*repository.User, error)
-	UpdateUser(id int, name, email string, age int) (*repository.User, error)
-	DeleteUser(id int) error
 }
 
 // userService implements UserService
@@ -49,48 +49,24 @@ func (s *userService) GetUserByID(id int) (*repository.User, error) {
 		return nil, errors.New("invalid user ID")
 	}
 
-	return s.repo.GetByID(id)
-}
-
-// GetAllUsers retrieves all users
-func (s *userService) GetAllUsers() ([]*repository.User, error) {
-	return s.repo.GetAll()
-}
-
-// UpdateUser updates an existing user with validation
-func (s *userService) UpdateUser(id int, name, email string, age int) (*repository.User, error) {
-	if id <= 0 {
-		return nil, errors.New("invalid user ID")
-	}
-
-	// Check if user exists
-	_, err := s.repo.GetByID(id)
+	user, err := s.repo.GetByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error failed to find user: %w", err)
 	}
 
-	// Business logic validation
-	if err := s.validateUserInput(name, email, age); err != nil {
-		return nil, err
+	mq := asynqque.NewMessageQueueClient()
+	task := asynqque.NewWelcomeEmailTask(user.ID)
+
+	tInfo, err := mq.Enqueue(task)
+	if err != nil {
+		log.Println("error-enqueue: ", tInfo)
+		// c.respondError(w, err.Error(), http.StatusInternalServerError)
+		return nil, fmt.Errorf("error failed to enqueue job: %w", err)
 	}
 
-	user := &repository.User{
-		ID:    id,
-		Name:  name,
-		Email: email,
-		Age:   age,
-	}
+	log.Println("queued info: ", tInfo)
 
-	return s.repo.Update(user)
-}
-
-// DeleteUser deletes a user by ID
-func (s *userService) DeleteUser(id int) error {
-	if id <= 0 {
-		return errors.New("invalid user ID")
-	}
-
-	return s.repo.Delete(id)
+	return user, nil
 }
 
 // validateUserInput validates user input according to business rules

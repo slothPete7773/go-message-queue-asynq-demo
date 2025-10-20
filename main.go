@@ -22,8 +22,6 @@ func main() {
 	// Setup HTTP routes
 	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
-		case http.MethodGet:
-			userController.GetAllUsers(w, r)
 		case http.MethodPost:
 			userController.CreateUser(w, r)
 		default:
@@ -35,10 +33,6 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			userController.GetUser(w, r)
-		case http.MethodPut:
-			userController.UpdateUser(w, r)
-		case http.MethodDelete:
-			userController.DeleteUser(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -52,7 +46,7 @@ func main() {
 	})
 
 	// Start server
-	port := ":8080"
+	port := ":8088"
 	fmt.Printf("User Management Service starting on port %s\n", port)
 	fmt.Println("Available endpoints:")
 	fmt.Println("  GET    /health          - Health check")
