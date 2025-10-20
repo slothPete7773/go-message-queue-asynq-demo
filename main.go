@@ -2,6 +2,7 @@ package main
 
 import (
 	"asynq-demo/controller"
+	asynqque "asynq-demo/message-queue/asynq-queue"
 	"asynq-demo/repository"
 	"asynq-demo/service"
 	"fmt"
@@ -12,9 +13,10 @@ import (
 func main() {
 	// Initialize repository layer
 	userRepo := repository.NewUserRepository()
+	publisher := asynqque.NewMessageQueueClient()
 
 	// Initialize service layer with repository dependency
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, publisher)
 
 	// Initialize controller layer with service dependency
 	userController := controller.NewUserController(userService)

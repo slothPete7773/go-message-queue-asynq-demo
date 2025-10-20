@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"asynq-demo/controller"
+	asynqque "asynq-demo/message-queue/asynq-queue"
 	"asynq-demo/repository"
 	"asynq-demo/service"
 	"encoding/json"
@@ -15,7 +16,8 @@ import (
 func TestGetUser_E2E(t *testing.T) {
 	// Setup: Initialize the full application stack
 	userRepo := repository.NewUserRepository()
-	userService := service.NewUserService(userRepo)
+	publisher := asynqque.NewMessageQueueClient()
+	userService := service.NewUserService(userRepo, publisher)
 	userController := controller.NewUserController(userService)
 
 	tests := []struct {
@@ -130,7 +132,8 @@ func TestGetUser_E2E(t *testing.T) {
 func TestGetUser_E2E_WrongHTTPMethod(t *testing.T) {
 	// Setup
 	userRepo := repository.NewUserRepository()
-	userService := service.NewUserService(userRepo)
+	publisher := asynqque.NewMessageQueueClient()
+	userService := service.NewUserService(userRepo, publisher)
 	userController := controller.NewUserController(userService)
 
 	wrongMethods := []string{
@@ -168,7 +171,8 @@ func TestGetUser_E2E_WrongHTTPMethod(t *testing.T) {
 func TestGetUser_E2E_ConcurrentRequests(t *testing.T) {
 	// Setup
 	userRepo := repository.NewUserRepository()
-	userService := service.NewUserService(userRepo)
+	publisher := asynqque.NewMessageQueueClient()
+	userService := service.NewUserService(userRepo, publisher)
 	userController := controller.NewUserController(userService)
 
 	// Number of concurrent requests to send

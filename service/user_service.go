@@ -17,13 +17,15 @@ type UserService interface {
 
 // userService implements UserService
 type userService struct {
-	repo repository.UserRepository
+	repo      repository.UserRepository
+	publisher messagequeue.Publisher
 }
 
 // NewUserService creates a new instance of UserService
-func NewUserService(repo repository.UserRepository) UserService {
+func NewUserService(repo repository.UserRepository, publisher messagequeue.Publisher) UserService {
 	return &userService{
-		repo: repo,
+		repo:      repo,
+		publisher: publisher,
 	}
 }
 
@@ -55,7 +57,7 @@ func (s *userService) GetUserByID(id int) (*repository.User, error) {
 	}
 
 	task := asynqque.NewWelcomeEmailTask(user.ID)
-	err = asynqque.NewMessageQueueClient().Publish(messagequeue.Payload{
+	err = s.publisher.Publish(messagequeue.Payload{
 		Body:          task.Payload(),
 		TaskTypeLabel: task.Type(),
 		QueueName:     "low",
