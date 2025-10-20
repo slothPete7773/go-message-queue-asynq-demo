@@ -17,3 +17,7 @@ Request that trigger message queue job
 ```sh
 curl localhost:8088/users/1
 ```
+
+
+
+

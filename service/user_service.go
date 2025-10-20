@@ -1,11 +1,11 @@
 package service
 
 import (
+	messagequeue "asynq-demo/message-queue"
 	asynqque "asynq-demo/message-queue/asynq-queue"
 	"asynq-demo/repository"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 )
 
@@ -54,17 +54,16 @@ func (s *userService) GetUserByID(id int) (*repository.User, error) {
 		return nil, fmt.Errorf("error failed to find user: %w", err)
 	}
 
-	mq := asynqque.NewMessageQueueClient()
 	task := asynqque.NewWelcomeEmailTask(user.ID)
+	err = asynqque.NewMessageQueueClient().Publish(messagequeue.Payload{
+		Body:          task.Payload(),
+		TaskTypeLabel: task.Type(),
+		QueueName:     "low",
+	})
 
-	tInfo, err := mq.Enqueue(task)
 	if err != nil {
-		log.Println("error-enqueue: ", tInfo)
-		// c.respondError(w, err.Error(), http.StatusInternalServerError)
 		return nil, fmt.Errorf("error failed to enqueue job: %w", err)
 	}
-
-	log.Println("queued info: ", tInfo)
 
 	return user, nil
 }
