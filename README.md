@@ -18,6 +18,6 @@ Request that trigger message queue job
 curl localhost:8088/users/1
 ```
 
+## Note
 
-
-
+- have not got idea to abstract the Consumer Workers for Asynq
