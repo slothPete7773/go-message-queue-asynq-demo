@@ -57,11 +57,7 @@ func (s *userService) GetUserByID(id int) (*repository.User, error) {
 	}
 
 	task := asynqque.NewWelcomeEmailTask(user.ID)
-	err = s.publisher.Publish(messagequeue.Payload{
-		Body:          task.Payload(),
-		TaskTypeLabel: task.Type(),
-		QueueName:     "low",
-	})
+	err = s.publisher.Publish(task)
 
 	if err != nil {
 		return nil, fmt.Errorf("error failed to enqueue job: %w", err)

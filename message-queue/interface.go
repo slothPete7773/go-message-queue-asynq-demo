@@ -5,7 +5,7 @@ type MessageQueue interface {
 }
 
 type Publisher interface {
-	Publish(Payload) error
+	Publish(*Payload) error
 	MessageQueue
 }
 

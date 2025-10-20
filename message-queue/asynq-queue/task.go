@@ -1,10 +1,9 @@
 package asynqque
 
 import (
+	messagequeue "asynq-demo/message-queue"
 	"encoding/json"
 	"time"
-
-	"github.com/hibiken/asynq"
 )
 
 const (
@@ -21,15 +20,19 @@ type ReminderEmail struct {
 	SentAt time.Time `json:"sentAt"`
 }
 
-func NewWelcomeEmailTask(id int) *asynq.Task {
+func NewWelcomeEmailTask(id int) *messagequeue.Payload {
 	payload := WelcomeEmail{UserId: id}
 	bPayload, err := json.Marshal(payload)
 	_ = err
 
-	return asynq.NewTask(TypeWelcomeEmail, bPayload)
+	return &messagequeue.Payload{
+		Body:          bPayload,
+		TaskTypeLabel: TypeWelcomeEmail,
+		QueueName:     "low",
+	}
 }
 
-func NewReminderEmailTask(id int, ts time.Time) *asynq.Task {
+func NewReminderEmailTask(id int, ts time.Time) *messagequeue.Payload {
 	payload := ReminderEmail{
 		UserId: id,
 		SentAt: ts,
@@ -38,5 +41,9 @@ func NewReminderEmailTask(id int, ts time.Time) *asynq.Task {
 	bPayload, err := json.Marshal(payload)
 	_ = err
 
-	return asynq.NewTask(TypeReminderEmail, bPayload)
+	return &messagequeue.Payload{
+		Body:          bPayload,
+		TaskTypeLabel: TypeReminderEmail,
+		QueueName:     "critical",
+	}
 }

@@ -58,7 +58,7 @@ func (mq *AsynqMq) Close() {
 	}
 }
 
-func (mq *AsynqMq) Publish(payload messagequeue.Payload) error {
+func (mq *AsynqMq) Publish(payload *messagequeue.Payload) error {
 	task := asynq.NewTask(payload.TaskTypeLabel, payload.Body)
 
 	taskInfo, err := mq.asynqClient.Enqueue(
